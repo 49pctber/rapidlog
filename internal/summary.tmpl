@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapid Log Summary</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fragment+Mono:ital@0;1&display=swap" rel="stylesheet">
+
+
+    <style>
+        body {
+            margin: 1em auto;
+            padding: 1em;
+            max-width: 1000px;
+            font-family: "Nunito", sans-serif;
+            font-size: 10pt;
+            display: flex;
+            flex-flow: column nowrap;
+        }
+
+        .header {
+            font-size: x-large;
+        }
+
+        .title {
+            margin: 1.5em 0 0.5em 0;
+            font-weight: bold;
+        }
+
+        .row {
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: start;
+            gap: 1em;
+        }
+
+        .row .preamble {
+            white-space: nowrap;
+            font-family: "Fragment Mono", monospace;
+        }
+
+        .footer {
+            text-align: center;
+            margin: 2em 0 0.5em 0;
+        }
+    </style>
+
+    <script>
+        function myFunction(id) {
+            navigator.clipboard.writeText(id)
+        }
+    </script>
+</head>
+
+{{- $prevDate := "" -}}
+
+<body>
+    <div class="header">
+        Rapid Log Summary
+    </div>
+    <div>
+        {{ .Time.Local.Format "Jan 2, 2006" }}
+
+        {{range .Entries}}
+
+        {{ if ne (.Timestamp.UTC.Local.Format "2006-01-02") $prevDate }}
+        {{- $prevDate = .Timestamp.UTC.Local.Format "2006-01-02" -}}
+    </div>
+    <div class="title">
+        {{ .Timestamp.UTC.Local.Format "Monday, Jan 2, 2006" }}
+    </div>
+    {{ end }}
+    <div class="row" onclick='myFunction({{.Id}})' title='[{{.Timestamp.UTC.Local.Format "15:04"}}] - {{.Id}}'>
+        <div class="preamble">{{.Timestamp.UTC.Local.Format "15:04"}} {{.Type}} </div>
+        <div class="entry">{{.Entry}}</div>
+    </div>
+    {{end}}
+    </div>
+</body>
+
+</html>
