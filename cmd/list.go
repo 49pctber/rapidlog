@@ -25,7 +25,7 @@ e.g. rapidlog list -t "3 days"`,
 			panic(err)
 		}
 
-		time_constraint, err := cmd.Flags().GetString("time_constraint")
+		time_constraint, err := cmd.Flags().GetString("time")
 		if err != nil {
 			panic(err)
 		}
