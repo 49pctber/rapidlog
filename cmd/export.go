@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
+	"path/filepath"
 
-	rapidlog "github.com/ae6nr/rapidlog/internal"
+	rapidlog "github.com/49pctber/rapidlog/internal"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +22,7 @@ If no path is specified, this will default to the same directory as your active 
 		// get backup file name and open it
 		var bfname string
 		if len(args) == 0 {
-			bfname = path.Join(rapidlog.GetCacheDir(), "backup.sqlite3")
+			bfname = filepath.Join(rapidlog.GetCacheDir(), "backup.sqlite3")
 		} else {
 			bfname = args[0]
 		}

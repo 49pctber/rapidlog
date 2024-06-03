@@ -20,7 +20,7 @@ Each entry is prepended with one of five symbols according to the following tabl
 You can install `rapidlog` using the command
 
 ```
-go install github.com/ae6nr/rapidlog@latest
+go install github.com/rapidlog/rapidlog@latest
 ```
 
 ## Usage
