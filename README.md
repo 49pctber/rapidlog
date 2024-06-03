@@ -20,7 +20,7 @@ Each entry is prepended with one of five symbols according to the following tabl
 You can install `rapidlog` using the command
 
 ```
-go install github.com/49pctber/rapidlog@latest
+go install github.com/ae6nr/rapidlog@latest
 ```
 
 ## Usage
@@ -68,9 +68,9 @@ You can delete an entry using the comand `rapidlog delete <id>`, where ID can be
 1. reading the ID from using `rapidlog list -v`
 2. clicking on the entry from `summary.html` to copy it to your keyboard
 
-### Importing Another Database File
+### Syncing Databases File
 
-If you have multiple database files, you can merge them using `rapidlog import <path>` to incorporate your other database into your active one.
+If you have multiple database files (e.g. you use `rapidlog` on multiple computers), you can export your databases using `rapidlog export <path>` to copy your database file to somewhere on your computer. You can then import it using `rapidlog import <path>` on your other machine.
 
 ### `--help`
 
