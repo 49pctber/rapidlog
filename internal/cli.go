@@ -3,7 +3,6 @@ package rapidlog
 import (
 	"errors"
 	"fmt"
-	"os"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -11,30 +10,6 @@ import (
 
 	"github.com/segmentio/ksuid"
 )
-
-func OpenEditor(filePath string) error {
-	var cmd *exec.Cmd
-
-	switch runtime.GOOS {
-	case "windows":
-		// Use 'notepad' on Windows
-		cmd = exec.Command("notepad", filePath)
-	case "darwin":
-		// Use 'open -e' which opens the file in the default text editor on macOS
-		cmd = exec.Command("open", "-e", filePath)
-	case "linux":
-		// Use 'xdg-open' to open the file in the default text editor on Linux
-		cmd = exec.Command("xdg-open", filePath)
-	default:
-		return fmt.Errorf("unsupported platform")
-	}
-
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	return cmd.Run()
-}
 
 func OpenFile(filePath string) error {
 	var cmd *exec.Cmd

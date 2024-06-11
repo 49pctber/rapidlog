@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"os/exec"
+	"runtime"
 
 	rapidlog "github.com/49pctber/rapidlog/internal"
 	"github.com/spf13/cobra"
@@ -14,7 +16,8 @@ var editCmd = &cobra.Command{
 	Short: "Edit a given entry",
 	Long: `Edit the specified entry given by <id>.
 Typical IDs look like 2hCcN9LzWH0whbkF8vzSSdKCVfA.
-IDs may be obtained by using the list command with the -v (--verbose) flag, or by clicking on the entry after running the summary command.`,
+IDs may be obtained by using the list command with the -v (--verbose) flag, or by clicking on the entry after running the summary command.
+To change the default behavior of the edit command, add a RAPIDLOG_EDITOR to your environment with the command to execute.`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
@@ -42,8 +45,34 @@ IDs may be obtained by using the list command with the -v (--verbose) flag, or b
 			return
 		}
 
-		if err := rapidlog.OpenEditor(tempFile.Name()); err != nil {
-			fmt.Printf("Error opening file in text editor: %v\n", err)
+		// choose edit command
+		var editor string
+		if e, err := cmd.Flags().GetString("editor"); e != "" && err == nil {
+			editor = e
+		} else if e := os.Getenv("RAPIDLOG_EDITOR"); e != "" {
+			editor = e
+		} else {
+			switch runtime.GOOS {
+			case "windows":
+				editor = "notepad"
+			case "darwin":
+				editor = "open -e"
+			case "linux":
+				editor = "nano"
+			default:
+				editor = ""
+			}
+		}
+
+		// execute
+		editcmd := exec.Command(editor, tempFile.Name())
+		editcmd.Stdin = os.Stdin
+		editcmd.Stdout = os.Stdout
+		editcmd.Stderr = os.Stderr
+
+		err = editcmd.Run()
+		if err != nil {
+			fmt.Printf("error running command: %v\n", err)
 		}
 
 		buf, err := os.ReadFile(tempFile.Name())
@@ -57,7 +86,7 @@ IDs may be obtained by using the list command with the -v (--verbose) flag, or b
 			fmt.Printf("Error updating entry: %v\n", err)
 		}
 
-		fmt.Printf("Updated entry.\n%v\n", entry)
+		fmt.Printf("Updated entry.\n%v", entry)
 
 		_, err = rapidlog.RenderSummary()
 		if err != nil {
@@ -69,4 +98,6 @@ IDs may be obtained by using the list command with the -v (--verbose) flag, or b
 
 func init() {
 	rootCmd.AddCommand(editCmd)
+
+	editCmd.Flags().StringP("editor", "e", "vim", "Specify the command to use to edit your entry")
 }
