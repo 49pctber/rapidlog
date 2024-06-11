@@ -99,5 +99,5 @@ To change the default behavior of the edit command, add a RAPIDLOG_EDITOR to you
 func init() {
 	rootCmd.AddCommand(editCmd)
 
-	editCmd.Flags().StringP("editor", "e", "vim", "Specify the command to use to edit your entry")
+	editCmd.Flags().StringP("editor", "e", "", "Specify the command to use to edit your entry")
 }
