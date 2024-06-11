@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"runtime"
+	"strings"
 
 	rapidlog "github.com/49pctber/rapidlog/internal"
 	"github.com/spf13/cobra"
@@ -80,7 +82,10 @@ To change the default behavior of the edit command, add a RAPIDLOG_EDITOR to you
 			fmt.Printf("Error reading temporary file: %v\n", err)
 		}
 
-		entry.Entry = string(buf)
+		re := regexp.MustCompile(`[\r\n]`)
+		entry.Entry = re.ReplaceAllString(string(buf), " ")
+		entry.Entry = strings.TrimSpace(entry.Entry)
+
 		err = entry.Log()
 		if err != nil {
 			fmt.Printf("Error updating entry: %v\n", err)
