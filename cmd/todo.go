@@ -4,8 +4,6 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
-
 	rapidlog "github.com/49pctber/rapidlog/internal"
 	"github.com/spf13/cobra"
 )
@@ -28,29 +26,17 @@ var todoCmd = &cobra.Command{
 		}
 
 		var entries []rapidlog.Entry
-		var symbol string
 
 		if show_completed {
 			entries, err = rapidlog.GetEntries("x", "100 years")
-			if err != nil {
-				panic(err)
-			}
-			symbol = "☑"
 		} else {
 			entries, err = rapidlog.GetEntries(".", "100 years")
-			if err != nil {
-				panic(err)
-			}
-			symbol = "☐"
+		}
+		if err != nil {
+			panic(err)
 		}
 
-		for _, entry := range entries {
-			if verbose {
-				fmt.Printf("%s %s\n  [%s]\n\n", symbol, entry.Entry, entry.Id)
-			} else {
-				fmt.Printf("%s %s\n", symbol, entry.Entry)
-			}
-		}
+		rapidlog.PrintEntries(entries, verbose, false)
 	},
 }
 

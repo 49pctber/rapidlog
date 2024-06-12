@@ -73,7 +73,7 @@ func (e Entry) String() string {
 
 func (e *Entry) Print(verbose bool) {
 	if verbose {
-		fmt.Printf("%s (%s) \n%v\n", e.Timestamp.UTC().Local().Format(TimestampFormat), e.Id, e)
+		fmt.Printf("%s %s | %s\n%v\n\n", e.Type, e.Timestamp.UTC().Local().Format(TimestampFormat), e.Id, e.Entry)
 	} else {
 		fmt.Printf("%v\n", e)
 	}
@@ -147,6 +147,29 @@ func GetEntry(id string) (*Entry, error) {
 	return &entry, nil
 }
 
+func PrintEntries(entries []Entry, verbose bool, withdate bool) {
+	if withdate {
+		prev_date := ""
+		for _, entry := range entries {
+			curr_date := entry.Timestamp.UTC().Local().Format("2006 Jan 02")
+			if prev_date != curr_date {
+				// print new date
+				prev_date = curr_date
+				fmt.Printf("\n---------------------------\n%s\n", curr_date)
+				if verbose {
+					fmt.Printf("---------------------------\n\n")
+				}
+			}
+			entry.Print(verbose)
+		}
+	} else {
+		for _, entry := range entries {
+			entry.Print(verbose)
+		}
+	}
+
+}
+
 func ListEntries(entry_type, time_constraint string, verbose bool) error {
 
 	entry_type = strings.TrimSpace(entry_type)
@@ -161,25 +184,10 @@ func ListEntries(entry_type, time_constraint string, verbose bool) error {
 		return err
 	}
 
-	prev_date := ""
-	for _, entry := range entries {
-		curr_date := entry.Timestamp.UTC().Local().Format("2006 Jan 02")
-		if prev_date != curr_date {
-			// print new date
-			prev_date = curr_date
-			fmt.Printf("\n---------------------------\n%s\n", curr_date)
-			if verbose {
-				fmt.Printf("---------------------------\n\n")
-			}
-		}
-		entry.Print(verbose)
-		if verbose {
-			fmt.Printf("\n")
-		}
-	}
+	PrintEntries(entries, verbose, true)
 
-	if !verbose {
-		fmt.Printf("\n")
+	if verbose {
+		fmt.Printf("[Listed entries less than %s old. Change with -t flag.]\n", time_constraint)
 	}
 
 	return nil

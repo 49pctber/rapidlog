@@ -50,6 +50,6 @@ e.g. rapidlog list -t "3 days"`,
 func init() {
 	rootCmd.AddCommand(listCmd)
 	listCmd.Flags().StringP("entry", "e", "", "Types of entries to print [.-=o?]")
-	listCmd.Flags().StringP("time", "t", "", "How far into the past to search for entries")
+	listCmd.Flags().StringP("time", "t", "24 hours", "How far into the past to search for entries")
 	listCmd.Flags().BoolP("verbose", "v", false, "Enable verbose printing")
 }
