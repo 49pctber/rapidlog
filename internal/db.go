@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/segmentio/ksuid"
 )
 
 // database settings
@@ -39,7 +38,7 @@ func init() {
 	}
 	// defer Db.Close()
 
-	_, err = Db.Exec(`CREATE TABLE IF NOT EXISTS entries (id TEXT NOT NULL PRIMARY KEY, timestamp DATETIME, type TEXT, content TEXT)`)
+	_, err = Db.Exec(`CREATE TABLE IF NOT EXISTS entries (id TEXT NOT NULL PRIMARY KEY, timestamp DATETIME, type TEXT, content TEXT, modified DATETIME)`)
 	if err != nil {
 		panic(err)
 	}
@@ -54,27 +53,33 @@ func ImportDatabase(fname string) error {
 		return fmt.Errorf("error opening database: %v", err)
 	}
 	defer activedb.Close()
-	insert_statement, err := activedb.Prepare(`INSERT INTO entries (id, timestamp, type, content) VALUES (?, ?, ?, ?)`)
-	if err != nil {
-		return fmt.Errorf("error reading database: %v", err)
-	}
 
 	// open imported database
 	db, err := sql.Open("sqlite3", fname)
 	if err != nil {
 		return fmt.Errorf("error opening database: %v", err)
 	}
+	modified_included := true
 	defer db.Close()
-	rows, err := db.Query(`SELECT id, timestamp, type, content FROM entries`)
+	rows, err := db.Query(`SELECT id, timestamp, type, content, modified FROM entries`)
 	if err != nil {
-		return fmt.Errorf("error reading database: %v", err)
+		modified_included = false
+		rows, err = db.Query(`SELECT id, timestamp, type, content FROM entries`)
+		if err != nil {
+			return fmt.Errorf("error reading database: %v", err)
+		}
 	}
 	defer rows.Close()
 
 	// add data to active database
 	for rows.Next() {
 		var entry Entry
-		rows.Scan(&entry.Id, &entry.Timestamp, &entry.Type, &entry.Entry)
+		if modified_included {
+			rows.Scan(&entry.Id, &entry.Timestamp, &entry.Type, &entry.Entry, &entry.Modified)
+		} else {
+			rows.Scan(&entry.Id, &entry.Timestamp, &entry.Type, &entry.Entry)
+			entry.Modified = DefaultTime
+		}
 
 		// check if entry already exists
 		row := activedb.QueryRow(`SELECT COUNT(*) FROM entries WHERE entries.id=? OR entries.timestamp=?`, entry.Id, entry.Timestamp)
@@ -82,47 +87,29 @@ func ImportDatabase(fname string) error {
 		row.Scan(&count)
 		if count == 1 {
 
-			// if imported database has an entry as completed, mark existing item as completed
-			if entry.Type == "x" {
-				existing_entry, err := GetEntry(entry.Id)
-				if err != nil {
-					return fmt.Errorf("error updating %s: %v", entry.Id, err)
-				}
-
-				if existing_entry.Type == "x" {
-					continue
-				}
-
-				err = existing_entry.MarkCompleted()
-				if err != nil {
-					return fmt.Errorf("error updating %s: %v", entry.Id, err)
-				}
-
-				fmt.Printf("marked \"%s\" as completed [%s]\n", entry.Entry, entry.Id)
-			}
-
-			continue
-		}
-
-		// add to active database
-		k, err := ksuid.Parse(entry.Id)
-		if err != nil {
-			new_id, err := ksuid.NewRandomWithTime(entry.Timestamp)
+			existing_entry, err := GetEntry(entry.Id)
 			if err != nil {
-				return fmt.Errorf("error producing new ID: %v", err)
+				panic(err)
 			}
 
-			entry.Id = new_id.String()
+			if existing_entry.Modified.Before(entry.Modified) {
+				err = entry.Log(false)
+				if err != nil {
+					return fmt.Errorf("error updating entry: %v", err)
+				}
+			}
+
 		} else {
-			entry.Id = k.String()
-		}
-		_, err = insert_statement.Exec(entry.Id, entry.Timestamp, entry.Type, entry.Entry)
-		if err != nil {
-			return fmt.Errorf("error adding entry to database: %v", err)
+			// add entry to database
+			err = entry.Log(false)
+			if err != nil {
+				return fmt.Errorf("error adding entry to database: %v", err)
+			}
+
+			// show new entry to user
+			entry.Print(false)
 		}
 
-		// show new entry to user
-		entry.Print(false)
 	}
 
 	return nil

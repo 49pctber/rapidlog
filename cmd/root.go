@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	rapidlog "github.com/49pctber/rapidlog/internal"
@@ -15,6 +16,11 @@ var rootCmd = &cobra.Command{
 		err := rapidlog.CliInterface()
 		if err != nil {
 			panic(err)
+		}
+
+		_, err = rapidlog.RenderSummary()
+		if err != nil {
+			panic(fmt.Errorf("error rendering summary: %v", err))
 		}
 	},
 }

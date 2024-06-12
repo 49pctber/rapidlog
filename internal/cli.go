@@ -87,7 +87,7 @@ func CliInterface() error {
 			fmt.Println("Entries must begin with -, ., o, =, or ?. Use the up arrow to edit your previous input.")
 			continue
 		}
-		err = entry.Log()
+		err = entry.Log(true)
 		if err != nil {
 			return err
 		}

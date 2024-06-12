@@ -29,6 +29,11 @@ var undoneCmd = &cobra.Command{
 		}
 
 		fmt.Printf("\"%s\" marked as incomplete.\n", entry.Entry)
+
+		_, err = rapidlog.RenderSummary()
+		if err != nil {
+			panic(fmt.Errorf("error rendering summary: %v", err))
+		}
 	},
 }
 

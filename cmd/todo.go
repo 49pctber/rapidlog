@@ -4,7 +4,6 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"database/sql"
 	"fmt"
 
 	rapidlog "github.com/49pctber/rapidlog/internal"
@@ -28,26 +27,24 @@ var todoCmd = &cobra.Command{
 			panic(err)
 		}
 
-		var rows *sql.Rows
+		var entries []rapidlog.Entry
 		var symbol string
 
 		if show_completed {
-			rows, err = rapidlog.GetEntries("x", "100 years")
+			entries, err = rapidlog.GetEntries("x", "100 years")
 			if err != nil {
 				panic(err)
 			}
 			symbol = "☑"
 		} else {
-			rows, err = rapidlog.GetEntries(".", "100 years")
+			entries, err = rapidlog.GetEntries(".", "100 years")
 			if err != nil {
 				panic(err)
 			}
 			symbol = "☐"
 		}
 
-		for rows.Next() {
-			var entry rapidlog.Entry
-			rows.Scan(&entry.Id, &entry.Timestamp, &entry.Type, &entry.Entry)
+		for _, entry := range entries {
 			if verbose {
 				fmt.Printf("%s %s\n  [%s]\n\n", symbol, entry.Entry, entry.Id)
 			} else {

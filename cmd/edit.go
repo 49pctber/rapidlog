@@ -86,7 +86,7 @@ To change the default behavior of the edit command, add a RAPIDLOG_EDITOR to you
 		entry.Entry = re.ReplaceAllString(string(buf), " ")
 		entry.Entry = strings.TrimSpace(entry.Entry)
 
-		err = entry.Log()
+		err = entry.Log(true)
 		if err != nil {
 			fmt.Printf("Error updating entry: %v\n", err)
 		}

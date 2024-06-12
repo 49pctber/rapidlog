@@ -16,7 +16,7 @@ var tmpl_str string
 
 func RenderSummary() (*string, error) {
 
-	rows, err := GetEntries("", "100 years")
+	entries, err := GetEntries("", "100 years")
 	if err != nil {
 		return nil, err
 	}
@@ -24,13 +24,6 @@ func RenderSummary() (*string, error) {
 	tmpl, err := template.New("summary").Parse(tmpl_str)
 	if err != nil {
 		return nil, err
-	}
-
-	var entries []Entry
-	for rows.Next() {
-		var entry Entry
-		rows.Scan(&entry.Id, &entry.Timestamp, &entry.Type, &entry.Entry)
-		entries = append(entries, entry)
 	}
 
 	// reverse the entries for the template
