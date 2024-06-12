@@ -60,36 +60,3 @@ func (e *Entry) ParseString(input string) error {
 
 	return ErrInvalidEntry
 }
-
-func CliInterface() error {
-
-	defer Db.Close()
-	fmt.Println("What's up?")
-
-	for {
-		// get user input
-		input, err := GetUserInput()
-		if err != nil {
-			return err
-		}
-
-		// check if user wants to quit
-		if Re_quit.MatchString(input) {
-			// render summary on clean exit
-			_, err := RenderSummary()
-			return err
-		}
-
-		// log a new entry
-		var entry Entry
-		err = entry.ParseString(input)
-		if err != nil {
-			fmt.Println("Entries must begin with -, ., o, =, or ?. Use the up arrow to edit your previous input.")
-			continue
-		}
-		err = entry.Log(true)
-		if err != nil {
-			return err
-		}
-	}
-}

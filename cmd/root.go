@@ -13,14 +13,36 @@ var rootCmd = &cobra.Command{
 	Short: "Add entries to your rapid log.",
 	Long:  `Add entries to your rapid log. Each entry must be prepended with ., -, =, o, or ? Type quit or exit to quit adding entries.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := rapidlog.CliInterface()
-		if err != nil {
-			panic(err)
-		}
+		fmt.Println("What's up?")
 
-		_, err = rapidlog.RenderSummary()
-		if err != nil {
-			panic(fmt.Errorf("error rendering summary: %v", err))
+		for {
+			// get user input
+			input, err := rapidlog.GetUserInput()
+			if err != nil {
+				panic(err)
+			}
+
+			// check if user wants to quit
+			if rapidlog.Re_quit.MatchString(input) {
+				// render summary on clean exit
+				_, err := rapidlog.RenderSummary()
+				if err != nil {
+					panic(err)
+				}
+				break
+			}
+
+			// log a new entry
+			var entry rapidlog.Entry
+			err = entry.ParseString(input)
+			if err != nil {
+				fmt.Println("Entries must begin with -, ., o, =, or ?. Use the up arrow to edit your previous input.")
+				continue
+			}
+			err = entry.Log(true)
+			if err != nil {
+				panic(err)
+			}
 		}
 	},
 }
