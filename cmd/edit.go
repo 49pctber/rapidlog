@@ -91,7 +91,7 @@ To change the default behavior of the edit command, add a RAPIDLOG_EDITOR to you
 			fmt.Printf("Error updating entry: %v\n", err)
 		}
 
-		fmt.Printf("Updated entry.\n%v", entry)
+		fmt.Printf("Updated entry.\n%v\n", entry)
 
 		_, err = rapidlog.RenderSummary()
 		if err != nil {

@@ -4,6 +4,7 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"database/sql"
 	"fmt"
 
 	rapidlog "github.com/49pctber/rapidlog/internal"
@@ -13,17 +14,45 @@ import (
 // todoCmd represents the todo command
 var todoCmd = &cobra.Command{
 	Use:   "todo",
-	Short: "list your todo list items",
-	Long:  `list your todo list items`,
+	Short: "List your todo list items",
+	Long:  `List your todo list items`,
 	Run: func(cmd *cobra.Command, args []string) {
-		rows, err := rapidlog.GetEntries(".", "100 years")
+
+		verbose, err := cmd.Flags().GetBool("verbose")
 		if err != nil {
 			panic(err)
 		}
+
+		show_completed, err := cmd.Flags().GetBool("completed")
+		if err != nil {
+			panic(err)
+		}
+
+		var rows *sql.Rows
+		var symbol string
+
+		if show_completed {
+			rows, err = rapidlog.GetEntries("x", "100 years")
+			if err != nil {
+				panic(err)
+			}
+			symbol = "☑"
+		} else {
+			rows, err = rapidlog.GetEntries(".", "100 years")
+			if err != nil {
+				panic(err)
+			}
+			symbol = "☐"
+		}
+
 		for rows.Next() {
 			var entry rapidlog.Entry
 			rows.Scan(&entry.Id, &entry.Timestamp, &entry.Type, &entry.Entry)
-			fmt.Printf("\xE2\x98\x90 %s\n\t[%s]\n", entry.Entry, entry.Id)
+			if verbose {
+				fmt.Printf("%s %s\n  [%s]\n\n", symbol, entry.Entry, entry.Id)
+			} else {
+				fmt.Printf("%s %s\n", symbol, entry.Entry)
+			}
 		}
 	},
 }
@@ -31,13 +60,6 @@ var todoCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(todoCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// todoCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// todoCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	todoCmd.Flags().BoolP("verbose", "v", false, "Enable verbose printing")
+	todoCmd.Flags().BoolP("completed", "c", false, "Show completed tasks")
 }

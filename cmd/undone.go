@@ -13,8 +13,8 @@ import (
 // undoneCmd represents the undone command
 var undoneCmd = &cobra.Command{
 	Use:   "undone",
-	Short: "mark a completed todo list item as not complete",
-	Long:  `mark a completed todo list item as not complete`,
+	Short: "Mark a completed todo list item as not complete",
+	Long:  `Mark a completed todo list item as not complete`,
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		entry, err := rapidlog.GetEntry(args[0])
@@ -34,14 +34,4 @@ var undoneCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(undoneCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// undoneCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// undoneCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
