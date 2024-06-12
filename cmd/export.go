@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"time"
 
 	rapidlog "github.com/49pctber/rapidlog/internal"
 	"github.com/spf13/cobra"
@@ -13,18 +14,20 @@ import (
 // importCmd represents the import command
 var exportCmd = &cobra.Command{
 	Use:   "export <path>",
-	Short: "Export your database file to <path> to use as a backup",
-	Long: `Export your database file to <path> to use as a backup.
-If no path is specified, this will default to the same directory as your active rapid log.`,
+	Short: "Export your database file to <directory> to use as a backup",
+	Long: `Export your database file to <directory> to use as a backup.
+If no directory is specified, this will default to the current directory as your active rapid log.`,
 	Args: cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+
+		fname := fmt.Sprintf("rapidlog_%s.sqlite3", time.Now().Local().Format("20060102150405"))
 
 		// get backup file name and open it
 		var bfname string
 		if len(args) == 0 {
-			bfname = filepath.Join(rapidlog.GetCacheDir(), "backup.sqlite3")
+			bfname = fname
 		} else {
-			bfname = args[0]
+			bfname = filepath.Join(args[0], fname)
 		}
 		backupfile, err := os.Create(bfname)
 		if err != nil {
@@ -54,7 +57,13 @@ If no path is specified, this will default to the same directory as your active 
 				panic(err)
 			}
 		}
-		fmt.Printf("Successfully exported to %s\n", bfname)
+
+		abspath, err := filepath.Abs(backupfile.Name())
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Printf("Successfully exported to %s\n", abspath)
 	},
 }
 

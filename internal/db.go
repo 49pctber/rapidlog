@@ -10,7 +10,7 @@ import (
 )
 
 // database settings
-var Dbname = "rapid_log.sqlite3"
+var Dbname = "rapidlog.sqlite3"
 var Dbpath string
 var Db *sql.DB
 
@@ -19,7 +19,7 @@ func GetCacheDir() string {
 	if err != nil {
 		panic(err)
 	}
-	return filepath.Join(dir, "RapidLog")
+	return filepath.Join(dir, "rapidlog")
 }
 
 func init() {
