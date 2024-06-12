@@ -21,12 +21,12 @@ IDs may be obtained by using the list command with the -v (--verbose) flag, or b
 		id := args[0]
 		entry, err := rapidlog.GetEntry(id)
 		if err != nil {
-			panic(fmt.Errorf("entry not found"))
+			fmt.Println("entry not found")
+			return
 		}
 
 		fmt.Println()
 		entry.Print(true)
-		fmt.Println()
 
 		fmt.Println("Are you sure you want to delete this entry? (y/n)")
 
@@ -36,7 +36,7 @@ IDs may be obtained by using the list command with the -v (--verbose) flag, or b
 		}
 
 		if resp != "y" {
-			fmt.Println("Entry NOT deleted.")
+			fmt.Printf("\nEntry NOT deleted.\n\n")
 			return
 		}
 
@@ -45,7 +45,7 @@ IDs may be obtained by using the list command with the -v (--verbose) flag, or b
 			panic(err)
 		}
 
-		fmt.Printf("\nDeleted entry %s\n", id)
+		fmt.Printf("\nEntry deleted.\n\n")
 
 		_, err = rapidlog.RenderSummary()
 		if err != nil {
