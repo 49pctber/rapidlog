@@ -22,16 +22,10 @@ var doneCmd = &cobra.Command{
 			panic(err)
 		}
 
-		if entry.Type != "." {
-			fmt.Printf("entry not a todo item (type %s, not .)\n", entry.Type)
-			return
-		}
-
-		entry.Type = "x"
-
-		err = entry.Log()
+		err = entry.MarkCompleted()
 		if err != nil {
-			panic(err)
+			fmt.Printf("%v\n", err)
+			return
 		}
 
 		fmt.Printf("\"%s\" marked as done.\n", entry.Entry)

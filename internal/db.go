@@ -80,10 +80,29 @@ func ImportDatabase(fname string) error {
 		row := activedb.QueryRow(`SELECT COUNT(*) FROM entries WHERE entries.id=? OR entries.timestamp=?`, entry.Id, entry.Timestamp)
 		var count int
 		row.Scan(&count)
-		if count != 0 {
+		if count == 1 {
+
+			// if imported database has an entry as completed, mark existing item as completed
+			if entry.Type == "x" {
+				existing_entry, err := GetEntry(entry.Id)
+				if err != nil {
+					return fmt.Errorf("error updating %s: %v", entry.Id, err)
+				}
+
+				if existing_entry.Type == "x" {
+					continue
+				}
+
+				err = existing_entry.MarkCompleted()
+				if err != nil {
+					return fmt.Errorf("error updating %s: %v", entry.Id, err)
+				}
+
+				fmt.Printf("marked \"%s\" as completed [%s]\n", entry.Entry, entry.Id)
+			}
+
 			continue
 		}
-		entry.Print(false)
 
 		// add to active database
 		k, err := ksuid.Parse(entry.Id)
@@ -101,6 +120,9 @@ func ImportDatabase(fname string) error {
 		if err != nil {
 			return fmt.Errorf("error adding entry to database: %v", err)
 		}
+
+		// show new entry to user
+		entry.Print(false)
 	}
 
 	return nil

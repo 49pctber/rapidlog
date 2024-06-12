@@ -23,7 +23,7 @@ var todoCmd = &cobra.Command{
 		for rows.Next() {
 			var entry rapidlog.Entry
 			rows.Scan(&entry.Id, &entry.Timestamp, &entry.Type, &entry.Entry)
-			fmt.Printf("\xE2\x98\x90 %s\n  [%s]\n\n", entry.Entry, entry.Id)
+			fmt.Printf("\xE2\x98\x90 %s\n\t[%s]\n", entry.Entry, entry.Id)
 		}
 	},
 }

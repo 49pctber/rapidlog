@@ -22,16 +22,10 @@ var undoneCmd = &cobra.Command{
 			panic(err)
 		}
 
-		if entry.Type != "x" {
-			fmt.Printf("entry not a completed todo item (type %s, not x)\n", entry.Type)
-			return
-		}
-
-		entry.Type = "."
-
-		err = entry.Log()
+		err = entry.MarkIncomplete()
 		if err != nil {
-			panic(err)
+			fmt.Printf("%v\n", err)
+			return
 		}
 
 		fmt.Printf("\"%s\" marked as incomplete.\n", entry.Entry)

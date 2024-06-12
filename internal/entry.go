@@ -65,6 +65,26 @@ func (e *Entry) Print(verbose bool) {
 	}
 }
 
+func (e *Entry) MarkCompleted() error {
+
+	if e.Type != "." {
+		return fmt.Errorf("entry not a todo item (type %s, not .)", e.Type)
+	}
+
+	e.Type = "x"
+	return e.Log()
+}
+
+func (e *Entry) MarkIncomplete() error {
+
+	if e.Type != "x" {
+		return fmt.Errorf("entry not a completed todo item (type %s, not x)", e.Type)
+	}
+
+	e.Type = "."
+	return e.Log()
+}
+
 func GetEntries(entry_type string, time_constraint string) (*sql.Rows, error) {
 	if time_constraint == "" {
 		time_constraint = "100 years"
